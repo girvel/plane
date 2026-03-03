@@ -1,6 +1,6 @@
 #include <raylib.h>
 
-const int camera_speed = 30;
+const int camera_speed = 10;
 
 int main(void)
 {
@@ -28,6 +28,16 @@ int main(void)
         if (IsKeyDown(KEY_S)) {
             camera.position.z += camera_speed * dt;
             camera.target.z += camera_speed * dt;
+        }
+
+        if (IsKeyDown(KEY_A)) {
+            camera.position.x += -camera_speed * dt;
+            camera.target.x += -camera_speed * dt;
+        }
+
+        if (IsKeyDown(KEY_D)) {
+            camera.position.x += camera_speed * dt;
+            camera.target.x += camera_speed * dt;
         }
 
         BeginDrawing();
