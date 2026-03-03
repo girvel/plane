@@ -1,6 +1,8 @@
 #include <raylib.h>
+#include <stdio.h>
 
-const int camera_speed = 10;
+const float camera_speed = 10;
+const float zoom_speed = 10;
 
 int main(void)
 {
@@ -22,34 +24,17 @@ int main(void)
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
-        float dt = 1. / GetFPS();
+        float dt = 1. / 60;
 
-        if (IsKeyDown(KEY_W)) {
-            camera.position.z += -camera_speed * dt;
-            camera.target.z += -camera_speed * dt;
-        }
+        Vector3 movement = {
+            .x = (float)(IsKeyDown(KEY_W) - IsKeyDown(KEY_S)),
+            .y = (float)(IsKeyDown(KEY_D) - IsKeyDown(KEY_A)),
+        };
 
-        if (IsKeyDown(KEY_S)) {
-            camera.position.z += camera_speed * dt;
-            camera.target.z += camera_speed * dt;
-        }
+        movement.x *= camera_speed * dt;
+        movement.y *= camera_speed * dt;
 
-        if (IsKeyDown(KEY_A)) {
-            camera.position.x += -camera_speed * dt;
-            camera.target.x += -camera_speed * dt;
-        }
-
-        if (IsKeyDown(KEY_D)) {
-            camera.position.x += camera_speed * dt;
-            camera.target.x += camera_speed * dt;
-        }
-
-        float scroll = GetMouseWheelMove();
-        if (scroll) {
-            float scroll_k = scroll > 0 ? 2 : .5;
-            camera.position.y *= scroll_k;
-            camera.position.z *= scroll_k;
-        }
+        UpdateCameraPro(&camera, movement, zero, -GetMouseWheelMove() * zoom_speed);
 
         BeginDrawing();
             ClearBackground(DARKGRAY);
