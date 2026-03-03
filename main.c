@@ -1,8 +1,21 @@
 #include <raylib.h>
-#include <stdio.h>
+#include <stddef.h>
+#include "nob.h"
 
 const float camera_speed = 10;
 const float zoom_speed = 10;
+
+#define ARRAY(TYPE) struct { \
+    TYPE *items; \
+    size_t count, capacity; \
+}
+
+typedef struct {
+    Model *model;
+    Vector3 position;
+} Entity;
+
+typedef ARRAY(Entity) Entities;
 
 int main(void)
 {
@@ -17,9 +30,14 @@ int main(void)
     };
 
     Vector3 zero = { 0.0f, 0.0f, 0.0f };
+    Model tree_model = LoadModel("assets/tree/o2100.obj");
 
-    Model tree = LoadModel("assets/tree/o2100.obj");
-    Vector3 tree_position = { 0.0f, 0.0f, 3.0f };
+    Entities entities = {0};
+    Entity first_tree = {
+        .model = &tree_model,
+        .position.z = 3.0f,
+    };
+    nob_da_append(&entities, first_tree);
 
     SetTargetFPS(60);
 
@@ -36,13 +54,24 @@ int main(void)
 
         UpdateCameraPro(&camera, movement, zero, -GetMouseWheelMove() * zoom_speed);
 
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Ray ray = GetScreenToWorldRay(GetMousePosition(), camera);
+            float k = -ray.position.y/ray.direction.y;
+            Entity tree = {
+                .model = &tree_model,
+                .position.x = ray.position.x + k * ray.direction.x,
+                .position.z = ray.position.z + k * ray.direction.z,
+            };
+            nob_da_append(&entities, tree);
+        }
+
         BeginDrawing();
             ClearBackground(DARKGRAY);
             BeginMode3D(camera);
-                DrawModel(tree, tree_position, 1.0f, WHITE);
-                DrawCube(zero, 1, 1, 1, WHITE);
-                DrawCubeWires(zero, 1, 1, 1, BLACK);
-                DrawGrid(10, 1.0f);
+                DrawGrid(100, 1.0f);
+                nob_da_foreach(Entity, e, &entities) {
+                    DrawModel(*e->model, e->position, 1.0f, WHITE);
+                }
             EndMode3D();
             DrawFPS(10, 10);
         EndDrawing();
