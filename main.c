@@ -6,14 +6,18 @@ int main(void)
 {
     InitWindow(800, 600, "Plane");
 
-    Camera3D camera = {0};
-    camera.position = (Vector3) { 0.0f, 10.0f, 10.0f };
-    camera.target = (Vector3) { 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3) { 0.0f, 1.0f, 0.0f };
-    camera.fovy = 45.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
+    Camera3D camera = {
+        .position = (Vector3) { 0.0f, 100.0f, 100.0f },
+        .target = (Vector3) { 0.0f, 0.0f, 0.0f },
+        .up = (Vector3) { 0.0f, 1.0f, 0.0f },
+        .fovy = 45.0f,
+        .projection = CAMERA_PERSPECTIVE,
+    };
 
     Vector3 zero = { 0.0f, 0.0f, 0.0f };
+
+    Model tree = LoadModel("assets/tree/o2100.obj");
+    Vector3 tree_position = { 0.0f, 0.0f, 3.0f };
 
     SetTargetFPS(60);
 
@@ -40,9 +44,17 @@ int main(void)
             camera.target.x += camera_speed * dt;
         }
 
+        float scroll = GetMouseWheelMove();
+        if (scroll) {
+            float scroll_k = scroll > 0 ? 2 : .5;
+            camera.position.y *= scroll_k;
+            camera.position.z *= scroll_k;
+        }
+
         BeginDrawing();
             ClearBackground(DARKGRAY);
             BeginMode3D(camera);
+                DrawModel(tree, tree_position, 1.0f, WHITE);
                 DrawCube(zero, 1, 1, 1, WHITE);
                 DrawCubeWires(zero, 1, 1, 1, BLACK);
                 DrawGrid(10, 1.0f);
@@ -50,6 +62,7 @@ int main(void)
             DrawFPS(10, 10);
         EndDrawing();
     }
+
     CloseWindow();
     return 0;
 }
