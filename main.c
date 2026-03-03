@@ -20,6 +20,8 @@ typedef ARRAY(Entity) Entities;
 int main(void)
 {
     InitWindow(800, 600, "Plane");
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    SetTargetFPS(60);
 
     Camera3D camera = {
         .position = (Vector3) { 0.0f, 100.0f, 100.0f },
@@ -38,8 +40,6 @@ int main(void)
         .position.z = 3.0f,
     };
     nob_da_append(&entities, first_tree);
-
-    SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
         float dt = 1. / 60;
